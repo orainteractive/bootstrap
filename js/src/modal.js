@@ -29,6 +29,7 @@ const Modal = (($) => {
     backdrop : true,
     keyboard : true,
     focus    : true,
+    modalTarget: document.body,
     show     : true
   }
 
@@ -131,7 +132,7 @@ const Modal = (($) => {
 
       this._adjustDialog()
 
-      $(document.body).addClass(ClassName.OPEN)
+      $(this._config.modalTarget).addClass(ClassName.OPEN)
 
       this._setEscapeEvent()
       this._setResizeEvent()
@@ -234,7 +235,7 @@ const Modal = (($) => {
       if (!this._element.parentNode ||
          this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
         // Don't move modal's DOM position
-        document.body.appendChild(this._element)
+        this._config.modalTarget.appendChild(this._element)
       }
 
       this._element.style.display = 'block'
@@ -310,7 +311,7 @@ const Modal = (($) => {
       this._element.setAttribute('aria-hidden', true)
       this._isTransitioning = false
       this._showBackdrop(() => {
-        $(document.body).removeClass(ClassName.OPEN)
+        $(this._config.modalTarget).removeClass(ClassName.OPEN)
         this._resetAdjustments()
         this._resetScrollbar()
         $(this._element).trigger(Event.HIDDEN)
@@ -338,7 +339,7 @@ const Modal = (($) => {
           $(this._backdrop).addClass(animate)
         }
 
-        $(this._backdrop).appendTo(document.body)
+        $(this._backdrop).appendTo(this._config.modalTarget)
 
         $(this._element).on(Event.CLICK_DISMISS, (event) => {
           if (this._ignoreBackdropClick) {
@@ -420,7 +421,7 @@ const Modal = (($) => {
     }
 
     _checkScrollbar() {
-      const rect = document.body.getBoundingClientRect()
+      const rect = this._config.modalTarget.getBoundingClientRect()
       this._isBodyOverflowing = rect.left + rect.right < window.innerWidth
       this._scrollbarWidth = this._getScrollbarWidth()
     }
@@ -452,7 +453,7 @@ const Modal = (($) => {
         })
 
         // Adjust body padding
-        const actualPadding = document.body.style.paddingRight
+        const actualPadding = this._config.modalTarget.style.paddingRight
         const calculatedPadding = $('body').css('padding-right')
         $('body').data('padding-right', actualPadding).css('padding-right', `${parseFloat(calculatedPadding) + this._scrollbarWidth}px`)
       }
@@ -485,9 +486,9 @@ const Modal = (($) => {
     _getScrollbarWidth() { // thx d.walsh
       const scrollDiv = document.createElement('div')
       scrollDiv.className = ClassName.SCROLLBAR_MEASURER
-      document.body.appendChild(scrollDiv)
+      this._config.modalTarget.appendChild(scrollDiv)
       const scrollbarWidth = scrollDiv.getBoundingClientRect().width - scrollDiv.clientWidth
-      document.body.removeChild(scrollDiv)
+      this._config.modalTarget.removeChild(scrollDiv)
       return scrollbarWidth
     }
 

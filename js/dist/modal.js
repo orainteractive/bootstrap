@@ -30,6 +30,7 @@ var Modal = function ($) {
     backdrop: true,
     keyboard: true,
     focus: true,
+    modalTarget: document.body,
     show: true
   };
   var DefaultType = {
@@ -124,7 +125,7 @@ var Modal = function ($) {
 
       this._adjustDialog();
 
-      $(document.body).addClass(ClassName.OPEN);
+      $(this._config.modalTarget).addClass(ClassName.OPEN);
 
       this._setEscapeEvent();
 
@@ -220,7 +221,7 @@ var Modal = function ($) {
 
       if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
         // Don't move modal's DOM position
-        document.body.appendChild(this._element);
+        this._config.modalTarget.appendChild(this._element);
       }
 
       this._element.style.display = 'block';
@@ -308,7 +309,7 @@ var Modal = function ($) {
       this._isTransitioning = false;
 
       this._showBackdrop(function () {
-        $(document.body).removeClass(ClassName.OPEN);
+        $(_this7._config.modalTarget).removeClass(ClassName.OPEN);
 
         _this7._resetAdjustments();
 
@@ -339,7 +340,7 @@ var Modal = function ($) {
           $(this._backdrop).addClass(animate);
         }
 
-        $(this._backdrop).appendTo(document.body);
+        $(this._backdrop).appendTo(this._config.modalTarget);
         $(this._element).on(Event.CLICK_DISMISS, function (event) {
           if (_this8._ignoreBackdropClick) {
             _this8._ignoreBackdropClick = false;
@@ -416,7 +417,8 @@ var Modal = function ($) {
     };
 
     _proto._checkScrollbar = function _checkScrollbar() {
-      var rect = document.body.getBoundingClientRect();
+      var rect = this._config.modalTarget.getBoundingClientRect();
+
       this._isBodyOverflowing = rect.left + rect.right < window.innerWidth;
       this._scrollbarWidth = this._getScrollbarWidth();
     };
@@ -446,7 +448,7 @@ var Modal = function ($) {
           $(element).data('margin-right', actualMargin).css('margin-right', parseFloat(calculatedMargin) + _this9._scrollbarWidth + "px");
         }); // Adjust body padding
 
-        var actualPadding = document.body.style.paddingRight;
+        var actualPadding = this._config.modalTarget.style.paddingRight;
         var calculatedPadding = $('body').css('padding-right');
         $('body').data('padding-right', actualPadding).css('padding-right', parseFloat(calculatedPadding) + this._scrollbarWidth + "px");
       }
@@ -481,9 +483,13 @@ var Modal = function ($) {
       // thx d.walsh
       var scrollDiv = document.createElement('div');
       scrollDiv.className = ClassName.SCROLLBAR_MEASURER;
-      document.body.appendChild(scrollDiv);
+
+      this._config.modalTarget.appendChild(scrollDiv);
+
       var scrollbarWidth = scrollDiv.getBoundingClientRect().width - scrollDiv.clientWidth;
-      document.body.removeChild(scrollDiv);
+
+      this._config.modalTarget.removeChild(scrollDiv);
+
       return scrollbarWidth;
     }; // Static
 
